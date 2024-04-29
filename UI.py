@@ -1,8 +1,10 @@
 import cv2
+from datetime import datetime
 from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QImage, QPixmap
 from PyQt6.QtWidgets import *
 import datetime
+import os
 
 
 class MainWindow(QMainWindow):
@@ -136,22 +138,25 @@ class MainWindow(QMainWindow):
         """run timer and call capture photo method"""
         self.photo_timer.start(seconds * 1000)
         self.photo_timer.timeout.connect(self.capture_photo)
-        
-
 
     def capture_photo(self):
         """ Capture photos and store it """
-        # salida = cv2.VideoWriter
-        try :
+        try:
             if hasattr(self, "current_frame"):
-                # cv2.imwrite("./Galery/photo.jpg", self.current_frame)
-                # # salida.release()
-                now = datetime.datetime.now()
+                # Determinar la ruta del escritorio
+                desktop_path = os.path.join(os.path.expanduser("~"), "Descargas")
+                # Crear la carpeta "Galery" si no existe
+                galery_path = os.path.join(desktop_path, "Galery")
+                if not os.path.exists(galery_path):
+                    os.mkdir(galery_path)
+                # Generar el nombre del archivo con la fecha y hora actual
+                now = datetime.datetime.now()  # Corrección aquí
                 date_time_str = now.strftime("%Y-%m-%d_%H-%M-%S")
-                file_name = f"./Galery/photo_{date_time_str}.jpg"
-                cv2.imwrite(file_name, self.current_frame)
+                file_name = f"photo_{date_time_str}.jpg"
+                # Guardar la imagen en la carpeta "Galery"
+                cv2.imwrite(os.path.join(galery_path, file_name), self.current_frame)
                 print("Photo saved")
-                self.photo_timer.stop()  
+                self.photo_timer.stop()
 
         except Exception as e:
             print(f"Error to take the photo: {e}")
