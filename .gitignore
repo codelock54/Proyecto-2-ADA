@@ -3,3 +3,5 @@ ejm/
 __pycache__/
 Tema.txt
 Galery/
+.idea
+camara/*

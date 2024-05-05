@@ -54,7 +54,7 @@ class MainWindow(QMainWindow):
         self.combo_box_timer.addItem("10 seg")
         Button_Layout.addWidget(self.combo_box_timer)
 
-        #Filter section
+        #Filter combo
         self.filter_combo = QComboBox()
         self.filter_combo.addItem("Original")
         self.filter_combo.addItem("Complement")
@@ -102,28 +102,13 @@ class MainWindow(QMainWindow):
         if reply == QMessageBox.StandardButton.Yes:
             self.close()
 
-    # def take_photo(self):
-    #     """ take photo button"""
-    #     # salida = cv2.VideoWriter
-    #     try :
-    #         if hasattr(self, "current_frame"):
-    #             # cv2.imwrite("./Galery/photo.jpg", self.current_frame)
-    #             # # salida.release()
-    #             now = datetime.datetime.now()
-    #             date_time_str = now.strftime("%Y-%m-%d_%H-%M-%S")
-    #             file_name = f"./Galery/photo_{date_time_str}.jpg"
-    #             cv2.imwrite(file_name, self.current_frame)
-    #             print("Photo saved")
-
-    #     except Exception as e:
-    #         print(f"Error to take the photo: {e}")
 
 
     def take_photo(self):
         """Initialize timer """
         timer_index = self.combo_box_timer.currentIndex()
         if timer_index == 0: # 0 seg
-            self.capture_photo()
+            self.start_photo_timer(0)
         elif timer_index == 1: # 3 seg
             self.start_photo_timer(3)
             
@@ -135,7 +120,7 @@ class MainWindow(QMainWindow):
 
 
     def start_photo_timer(self, seconds):
-        """run timer and call capture photo method"""
+        """Run timer and call capture photo method"""
         self.photo_timer.start(seconds * 1000)
         self.photo_timer.timeout.connect(self.capture_photo)
 
@@ -143,16 +128,23 @@ class MainWindow(QMainWindow):
         """ Capture photos and store it """
         try:
             if hasattr(self, "current_frame"):
+
                 # Determinar la ruta del escritorio
-                desktop_path = os.path.join(os.path.expanduser("~"), "Descargas")
-                # Crear la carpeta "Galery" si no existe
+                desktop_path = os.path.join(os.path.expanduser("."),"./")
+                # desktop_path = os.getcwdb()
+
+                # # Crear la carpeta "Galery" si no existe
                 galery_path = os.path.join(desktop_path, "Galery")
+                # galery_path = "./Galery"
+
                 if not os.path.exists(galery_path):
                     os.mkdir(galery_path)
+
                 # Generar el nombre del archivo con la fecha y hora actual
-                now = datetime.datetime.now()  # Corrección aquí
+                now = datetime.datetime.now()  
                 date_time_str = now.strftime("%Y-%m-%d_%H-%M-%S")
                 file_name = f"photo_{date_time_str}.jpg"
+
                 # Guardar la imagen en la carpeta "Galery"
                 cv2.imwrite(os.path.join(galery_path, file_name), self.current_frame)
                 print("Photo saved")
@@ -160,17 +152,23 @@ class MainWindow(QMainWindow):
 
         except Exception as e:
             print(f"Error to take the photo: {e}")
+            self.photo_timer.stop()
+
+
 
     def update_filter(self):
-            """filters """
+            """Camera filters """
             filter_index = self.filter_combo.currentIndex()
-            if filter_index == 0: # Original
+            # Original
+            if filter_index == 0: 
                 self.display_frame = self.current_frame
-
-            elif filter_index == 1: # Complemento
+                
+            # Complemento
+            elif filter_index == 1: 
                 self.display_frame = cv2.bitwise_not(self.current_frame)
 
-            elif filter_index == 2: # Binarización
+            # Binarización
+            elif filter_index == 2: 
                 gray_frame = cv2.cvtColor(self.current_frame, cv2.COLOR_BGR2GRAY)
                 _, self.display_frame = cv2.threshold(gray_frame, 128, 255, cv2.THRESH_BINARY)
                 self.display_frame = cv2.cvtColor(self.display_frame, cv2.COLOR_GRAY2BGR)
