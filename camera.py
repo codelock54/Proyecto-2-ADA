@@ -1,10 +1,12 @@
 import cv2
 from PyQt6.QtCore import QTimer
 from PyQt6.QtGui import QImage, QPixmap
+from PyQt6.QtWidgets import *
 import os 
 import datetime
-
+import pygame
 class Camera:
+    """Open and Manage the Camera"""
     def __init__(self, original_label, filter_label, filter_combo):
         self.original_label = original_label
         self.filter_label = filter_label
@@ -18,12 +20,13 @@ class Camera:
         self.photo_timer.timeout.connect(self.take_photo)
 
     def update_frame(self):
+        """Update frames y set up filters"""
         ret, frame = self.cap.read()
         if ret:
-            # Mostrar la imagen original en self.original_label
+            # show original image
             self.display_image(frame, self.original_label)
 
-            # Aplicar el filtro seleccionado a la imagen
+            # Set filter selected 
             filter_index = self.filter_combo.currentIndex()
             if filter_index == 0:  # Original
                 filtered_frame = frame.copy()
@@ -34,10 +37,11 @@ class Camera:
                 _, binary_frame = cv2.threshold(gray_frame, 128, 255, cv2.THRESH_BINARY)
                 filtered_frame = cv2.cvtColor(binary_frame, cv2.COLOR_GRAY2BGR)
 
-            # Mostrar la imagen filtrada en self.filter_label
+            # show filter image
             self.display_image(filtered_frame, self.filter_label)
 
     def display_image(self, image, label):
+        """Show Image in the display"""
         rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         h, w, ch = rgb_image.shape
         bytes_per_line = ch * w
@@ -48,7 +52,7 @@ class Camera:
 
 
     def take_photo(self):
-
+        """Take and Store photos"""
         try:
            
 
@@ -73,6 +77,8 @@ class Camera:
                 if ret:
                     cv2.imwrite(os.path.join(galery_path, file_name), frame)
                     print("Photo saved")
+                    pygame.mixer.music.load("effects/camera-flash-204151.mp3")
+                    pygame.mixer.music.play()
                     self.photo_timer.stop()
 
         except Exception as e:
@@ -80,7 +86,8 @@ class Camera:
     
 
     def start_photo_timer(self, seconds):
-        """Inicia el temporizador para tomar fotos."""
+        """Set Timer to take photos"""
         self.photo_timer.start(seconds * 1000)
 
   
+   
