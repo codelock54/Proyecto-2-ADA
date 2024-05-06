@@ -1,10 +1,8 @@
 import cv2
 from PyQt6.QtCore import QTimer
 from PyQt6.QtGui import QImage, QPixmap
-
-import cv2
-from PyQt6.QtCore import QTimer
-from PyQt6.QtGui import QImage, QPixmap
+import os 
+import datetime
 
 class Camera:
     def __init__(self, original_label, filter_label, filter_combo):
@@ -15,6 +13,9 @@ class Camera:
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_frame)
         self.timer.start(10)
+
+        self.photo_timer = QTimer()
+        self.photo_timer.timeout.connect(self.take_photo)
 
     def update_frame(self):
         ret, frame = self.cap.read()
@@ -44,3 +45,42 @@ class Camera:
         pixmap = QPixmap.fromImage(qt_image)
         label.setPixmap(pixmap)
         label.setScaledContents(True)
+
+
+    def take_photo(self):
+
+        try:
+           
+
+                # Determinar la ruta del escritorio
+                desktop_path = os.path.join(os.path.expanduser("."),"./")
+                # desktop_path = os.getcwdb()
+
+                # # Crear la carpeta "Galery" si no existe
+                galery_path = os.path.join(desktop_path, "Galery")
+                # galery_path = "./Galery"
+
+                if not os.path.exists(galery_path):
+                    os.mkdir(galery_path)
+
+                # Generar el nombre del archivo con la fecha y hora actual
+                now = datetime.datetime.now()  
+                date_time_str = now.strftime("%Y-%m-%d_%H-%M-%S")
+                file_name = f"photo_{date_time_str}.jpg"
+
+                # Guardar la imagen en la carpeta "Galery"
+                ret, frame = self.cap.read()
+                if ret:
+                    cv2.imwrite(os.path.join(galery_path, file_name), frame)
+                    print("Photo saved")
+                    self.photo_timer.stop()
+
+        except Exception as e:
+            print(f"Error to take the photo: {e}")
+    
+
+    def start_photo_timer(self, seconds):
+        """Inicia el temporizador para tomar fotos."""
+        self.photo_timer.start(seconds * 1000)
+
+  
