@@ -2,3 +2,6 @@ PyQt6
 opencv-python
 pygame
 numpy
+moviepy
+sounddevice
+scipy
