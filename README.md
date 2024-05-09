@@ -36,9 +36,7 @@ Go to the project directory
 ```
  run file main.py
 
-```bash
-   
-```
+
 
 
 
